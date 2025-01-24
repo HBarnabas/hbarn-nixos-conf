@@ -1,13 +1,5 @@
 { config, pkgs, ... }:
 
-let
-  gdk = pkgs.google-cloud-sdk.withExtraComponents( with pkgs.google-cloud-sdk.components; [
-    gke-gcloud-auth-plugin
-    kubectl
-    docker-credential-gcr
-  ]);
-in
-
 {
   programs.steam = {
     enable = true;
@@ -27,18 +19,19 @@ in
     htop
     tmux
     gnome-keyring
-    tenv # set TENV_AUTO_INSTALL=true
-    gdk
     neofetch
     xdg-desktop-portal-wlr
-    terraform-docs
-    go-task
     jq
     inetutils
     ntfs3g
     vendir
+    python3
+    openjdk
+    mssql-tools
+    postgresql
+    mongodb
 
     # browser
-    microsoft-edge # !!! fix
+    google_chrome # !!! fix
   ];
 }
