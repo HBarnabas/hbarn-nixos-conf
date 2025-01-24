@@ -39,7 +39,7 @@
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
-  
+
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true;
@@ -69,6 +69,7 @@
     mssql-tools
     postgresql
     mongodb
+    notepadqq
 
     # browser
     google_chrome # !!! fix
