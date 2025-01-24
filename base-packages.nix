@@ -70,6 +70,7 @@
     postgresql
     mongodb
     notepadqq
+    vscode
 
     # browser
     google_chrome # !!! fix
