@@ -39,6 +39,7 @@
 		btop
 		mc
 	      ];
+	      home.keyboard = null;
 	      programs.kitty = {
 	        enable = true;
 		settings = {
@@ -60,13 +61,17 @@
 		  modifier = "Mod4"; # Super
 		  terminal = "kitty";
 		  output = {
+		    "DP-2" = {
+		      mode = "1280x1024@60Hz";
+		      position = "0,0";
+		    };
 		    "DP-1" = {
 		      mode = "3440x1440@144Hz";
-		      position = "0,0";
+		      position = "1280,0";
 		    };
 		    "HDMI-A-2" = {
 		      mode = "1920x1080@60Hz";
-		      position = "3440,0";
+		      position = "4720,0";
 		      transform = "270";
 		    };
 		  };
@@ -85,15 +90,27 @@
 		    }
 		    {
 		      output = "HDMI-A-2";
+		      workspace = "4";
+		    }
+		    {
+		      output = "HDMI-A-2";
+		      workspace = "5";
+		    }
+		    {
+		      output = "HDMI-A-2";
 		      workspace = "6";
 		    }
 		    {
-		      output = "HDMI-A-2";
+		      output = "DP-2";
 		      workspace = "7";
 		    }
 		    {
-		      output = "HDMI-A-2";
+		      output = "DP-2";
 		      workspace = "8";
+		    }
+		    {
+		      output = "DP-2";
+		      workspace = "9";
 		    }
 		  ];
 		};

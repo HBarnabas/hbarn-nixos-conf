@@ -15,6 +15,7 @@
       ./lutris.nix
 #      ./wayland-config.nix
       ./fonts.nix
+      ./vm.nix
     ];
 
   # Bootloader.
@@ -52,7 +53,7 @@
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us,hu";
-    variant = "";
+    # variant = "";
     options = "grp:win_space_toggle";
   };
 

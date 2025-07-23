@@ -1,11 +1,7 @@
 { config, pkgs, ... }:
 
-let
-  gdk = pkgs.google-cloud-sdk.withExtraComponents( with pkgs.google-cloud-sdk.components; [
-    gke-gcloud-auth-plugin
-    kubectl
-    docker-credential-gcr
-  ]);
+let 
+  unstable = import <unstable> { config = {allowUnfree = true; }; };
 in
 
 {
@@ -15,8 +11,10 @@ in
     dedicatedServer.openFirewall = true;
     localNetworkGameTransfers.openFirewall = true;
   };
-  programs.bash.shellAliases = {
-    ssh = "kitty +kitten ssh";
+  programs.bash = {
+    shellAliases = {
+      ssh = "kitty +kitten ssh";
+    };
   };
   environment.systemPackages = with pkgs; [
     # cli utils
@@ -28,7 +26,12 @@ in
     tmux
     gnome-keyring
     tenv # set TENV_AUTO_INSTALL=true
-    gdk
+    (unstable.google-cloud-sdk.withExtraComponents( with google-cloud-sdk.components; [
+      gke-gcloud-auth-plugin
+      kubectl
+      docker-credential-gcr
+    ]))
+    #  gdk
     neofetch
     xdg-desktop-portal-wlr
     terraform-docs
@@ -37,6 +40,20 @@ in
     inetutils
     ntfs3g
     vendir
+    unzip
+    python311
+    vlc
+    gnome-sudoku
+    unstable.heroic
+    slack
+    unstable.code-cursor
+    unstable.zed-editor-fhs    
+    unstable.dotnetCorePackages.dotnet_8.sdk
+    unstable.dotnetCorePackages.dotnet_9.sdk
+    jdk8
+    gimp3
+    memtester
+    stress
 
     # browser
     microsoft-edge # !!! fix

@@ -12,6 +12,9 @@
 
   # use sway from home-manager in flake.nix
 #  programs.sway.enable = true;
+  programs.waybar = {
+    enable = true;
+  };
 
   security.polkit.enable = true;
 }
