@@ -16,11 +16,26 @@
 #      ./wayland-config.nix
       ./fonts.nix
       ./vm.nix
+      ./drives.nix
+      ./env-vars.nix
     ];
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.enable = false;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.grub = {
+    enable = true;
+    efiSupport = true;
+    device = "nodev";
+    extraEntries = ''
+      menuentry "CachyOS" {
+	search --label --set=root CachyOS
+	linux /boot/vmlinuz-linux-cachyos root=LABEL=CachyOS rw quiet splash
+	initrd /boot/initramfs-linux-cachyos.img
+      }
+    '';
+  };
+
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -50,6 +65,11 @@
     LC_TIME = "hu_HU.UTF-8";
   };
 
+  zramSwap = {
+    enable = true;
+    memoryPercent = 25;
+  };
+
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us,hu";
@@ -69,7 +89,10 @@
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
-
+  nixpkgs.config.allowBroken = true;
+  nixpkgs.config.permittedInsecurePackages = [
+    "qtwebengine-5.15.19"
+  ];
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [

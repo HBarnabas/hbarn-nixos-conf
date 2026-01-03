@@ -19,6 +19,8 @@ in
   environment.systemPackages = with pkgs; [
     # cli utils
     # git
+    sway
+    hyprland
     curl
     wget
     vim
@@ -26,6 +28,7 @@ in
     tmux
     gnome-keyring
     tenv # set TENV_AUTO_INSTALL=true
+    tflint
     (unstable.google-cloud-sdk.withExtraComponents( with google-cloud-sdk.components; [
       gke-gcloud-auth-plugin
       kubectl
@@ -33,6 +36,7 @@ in
     ]))
     #  gdk
     neofetch
+    xdg-desktop-portal
     xdg-desktop-portal-wlr
     terraform-docs
     go-task
@@ -54,6 +58,9 @@ in
     gimp3
     memtester
     stress
+    deluge
+    unrar
+#    teamspeak3
 
     # browser
     microsoft-edge # !!! fix

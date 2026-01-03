@@ -8,10 +8,12 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-#    jack.enable = true;
+    audio.enable = true;
+    jack.enable = false;
   };
   environment.systemPackages = [
     pkgs.easyeffects
     pkgs.dconf
+    pkgs.wireplumber
   ];
 }
