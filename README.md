@@ -1,19 +1,16 @@
-# NixOS config files
+# NixOS Flake
 
-Separated into (for me) logical chunks and imported in `configuration.nix`, the config contains the following:
-- sway wm with greetd login
-- user homes and flakes enabled
-- not-flaked packages separated to easier access
-- audio config and related packages
+### Structure:
 
-Lutris is in its own file, so it's easily ignored when not needed (remove import from `configuration.nix`).
+**Hosts:** Contains system level configurations organizes (mostly) into logical modules. (goal: potentially have multiple hosts for different platform ie.: desktop, laptop, rpi, ...)
+
+**Home:** Contains user configuration matching the users defined in `hosts/<host>/users.nix`. Defining per user Home Manager config with separate user-space modules (DEs, shells, ...) and apps (packages, per-package customizations).
 
 ### Installation
 
-On fresh install: clone repo onto machine, move files into `/etc/nixos` dir and run the following:
+On fresh install: clone repo onto machine, cd into the dir and run the following:
 
 ```bash
 # in /etc/nixos dir
-sudo nixos-rebuild switch --flake .#nixos
+sudo nixos-rebuild switch --flake .
 ```
-
