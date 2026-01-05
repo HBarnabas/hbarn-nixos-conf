@@ -8,8 +8,6 @@
   imports = [
     ./modules/apps.nix
     ./modules/dev.nix
-    ./modules/hyprland-wm.nix
-    ./modules/mango.nix
     ./modules/sway-wm.nix
     ./modules/terminal.nix
     ./modules/waybar.nix

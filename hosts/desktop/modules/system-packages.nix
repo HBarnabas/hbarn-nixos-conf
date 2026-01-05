@@ -13,5 +13,6 @@
     wlroots_0_19
     xdg-desktop-portal
     xdg-desktop-portal-wlr
+    swayfx
   ];
 }

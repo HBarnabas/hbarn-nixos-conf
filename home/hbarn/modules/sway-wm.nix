@@ -3,6 +3,10 @@
 {
   wayland.windowManager.sway = {
     enable = true;
+    package = pkgs.swayfx;
+
+    checkConfig = false;
+
     config = {
       modifier = "Mod4"; # Super
       input = {
@@ -39,6 +43,18 @@
         { output = "DP-2"; workspace = "9"; }
       ];
     };
+    extraConfigEarly = ''
+      gaps inner 6
+      gaps outer 4
+      default_border pixel 2
+      corner_radius 8
+      blur enable
+      blur_radius 8
+      blur_passes 2
+      shadows enable
+      shadow_color 000000AA
+      shadow_blur_radius 20
+    '';
     extraConfig = ''
       bindsym Print			exec shotman -c output
       bindsym Print+Shift		exec shotman -c region

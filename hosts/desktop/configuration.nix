@@ -11,6 +11,7 @@
     ./modules/drives.nix
     ./modules/env-vars.nix
     ./modules/fonts.nix
+    ./modules/graphics.nix
     ./modules/greetd.nix
     ./modules/locale.nix
     ./modules/networking.nix
