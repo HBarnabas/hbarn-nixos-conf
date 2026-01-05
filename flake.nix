@@ -22,10 +22,16 @@
         modules = [
           ./hosts/desktop/configuration.nix
           home-manager.nixosModules.home-manager
+          inputs.mango.nixosModules.mango
           {
        	    home-manager.useGlobalPkgs = true;
        	    home-manager.useUserPackages = true;
-       	    home-manager.users.hbarn = import ./home/hbarn/home.nix;
+       	    home-manager.users.hbarn = {
+              imports = [
+                ./home/hbarn/home.nix
+                inputs.mango.hmModules.mango
+              ];
+            };
           }
         ];
       };
