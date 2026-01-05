@@ -7,7 +7,6 @@
     dedicatedServer.openFirewall = true;
     localNetworkGameTransfers.openFirewall = true;
   };
-  programs.mango.enable = true;
   environment.systemPackages = with pkgs; [
     gnome-keyring
     wlroots_0_19

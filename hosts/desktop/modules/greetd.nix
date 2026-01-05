@@ -1,10 +1,6 @@
-{ pkgs, mango, ... }:
+{ pkgs, ... }:
 
-let
-  mangoSessions = "${mango.packages.${pkgs.stdenv.hostPlatform.system}.mango}/share/wayland-sessions";
-  hyprlandSessions = "${pkgs.hyprland}/share/wayland-sessions";
-  swaySessions = "${pkgs.sway-unwrapped}/share/wayland-sessions";
-in {
+{
   boot.loader.systemd-boot.enable = false;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.grub = {
@@ -13,9 +9,9 @@ in {
     device = "nodev";
     extraEntries = ''
       menuentry "CachyOS" {
-	search --label --set=root CachyOS
-	linux /boot/vmlinuz-linux-cachyos root=LABEL=CachyOS rw quiet splash
-	initrd /boot/initramfs-linux-cachyos.img
+      search --label --set=root CachyOS
+      linux /boot/vmlinuz-linux-cachyos root=LABEL=CachyOS rw quiet splash
+      initrd /boot/initramfs-linux-cachyos.img
       }
     '';
   };
@@ -23,8 +19,8 @@ in {
     enable = true;
     settings = {
       default_session = {
-	command = "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --user-menu --sessions ${mangoSessions}:${hyprlandSessions}:${swaySessions}";
-	user = "greeter";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --user-menu --cmd sway";
+        user = "greeter";
       };
       environment = {
         XDG_SESSION_TYPE = "wayland";
@@ -44,9 +40,7 @@ in {
   };
 
   environment.etc."greetd/environments".text = ''
-    mango
     sway
-    hyprland
   '';
 
   security.pam.services.greetd = {};
