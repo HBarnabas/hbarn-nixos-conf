@@ -11,6 +11,7 @@
     ./modules/hyprland-wm.nix
     ./modules/mango.nix
     ./modules/sway-wm.nix
+    ./modules/swayfx-wm.nix
     ./modules/terminal.nix
     ./modules/waybar.nix
   ];
