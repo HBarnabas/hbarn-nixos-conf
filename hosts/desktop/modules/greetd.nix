@@ -1,6 +1,7 @@
-{ pkgs, ... }:
+{ pkgs, mango, ... }:
 
 let
+  mangoSessions = "${mango.packages.${pkgs.stdenv.hostPlatform.system}.mango}/share/wayland-sessions";
   hyprlandSessions = "${pkgs.hyprland}/share/wayland-sessions";
   swaySessions = "${pkgs.sway-unwrapped}/share/wayland-sessions";
 in {
@@ -22,7 +23,7 @@ in {
     enable = true;
     settings = {
       default_session = {
-	command = "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --user-menu --sessions ${hyprlandSessions}:${swaySessions}";
+	command = "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --user-menu --sessions ${mangoSessions}:${hyprlandSessions}:${swaySessions}";
 	user = "greeter";
       };
       environment = {
@@ -43,6 +44,7 @@ in {
   };
 
   environment.etc."greetd/environments".text = ''
+    mango
     sway
     hyprland
   '';

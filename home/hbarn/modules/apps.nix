@@ -3,49 +3,50 @@
 {
   home.packages = with pkgs; [
     # utility
-		keepassxc
+    btop
+    curl
 		grim
-    slurp
-		mako
-		wl-clipboard
-		shotman
-		btop
-		mc
-		curl
-    wget
-    vim
-    htop
-    tmux
+		htop
+		keepassxc
     neofetch
     ntfs3g
-    unzip
+    mako
+		mc
     memtester
+    shotman
+		slurp
     stress
+    tmux
     unrar
+    unzip
+    vim
+    wget
+    wl-clipboard
+    wofi
 
 		# media
+		gimp3
 		pavucontrol
 		spotify
 		vlc
-		gimp3
 
 		# discord
 		discord
 
 		# dev
+		code-cursor
+		go-task
+    inetutils
+    jdk8
+    jq
+		python311
+    slack
 		sublime-merge
-		vscode
 		tenv # set TENV_AUTO_INSTALL=true
     tflint
     terraform-docs
-    go-task
-    jq
-    inetutils
     vendir
-    python311
-    slack
-    jdk8
-    code-cursor
+    vscode
     zed-editor-fhs
     (dotnetCorePackages.combinePackages [
       dotnetCorePackages.dotnet_8.sdk
@@ -58,8 +59,8 @@
     ]))
 
     #gaming
-    gnome-sudoku
     deluge
+    gnome-sudoku
     heroic
     wineWowPackages.stable
     winetricks
