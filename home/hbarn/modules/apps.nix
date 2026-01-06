@@ -23,6 +23,7 @@
     wget
     wl-clipboard
     wofi
+    xournalpp
 
 		# media
 		gimp3

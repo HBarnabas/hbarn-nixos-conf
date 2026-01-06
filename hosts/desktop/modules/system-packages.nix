@@ -14,4 +14,5 @@
     xdg-desktop-portal-wlr
     swayfx
   ];
+  hardware.opentabletdriver.enable = true;
 }
