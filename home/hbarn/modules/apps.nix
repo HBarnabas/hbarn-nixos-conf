@@ -31,8 +31,9 @@
 		spotify
 		vlc
 
-		# discord
+		# chat
 		discord
+		webcord
 
 		# dev
 		code-cursor

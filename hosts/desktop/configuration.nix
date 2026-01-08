@@ -9,6 +9,7 @@
     ./hardware-configuration.nix
     ./modules/audio-config.nix
     ./modules/drives.nix
+    ./modules/enable-flake.nix
     ./modules/env-vars.nix
     ./modules/fonts.nix
     ./modules/graphics.nix

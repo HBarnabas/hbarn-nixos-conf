@@ -16,10 +16,7 @@
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.allowBroken = true;
-  nixpkgs.config.permittedInsecurePackages = [
-    "qtwebengine-5.15.19"
-  ];
+  # nixpkgs.config.allowBroken = true;
 
   security.polkit.enable = true;
 }
