@@ -33,7 +33,7 @@
 
 		# chat
 		discord
-		webcord
+		webcord # borked on 2026.01.08.
 
 		# dev
 		code-cursor
@@ -49,7 +49,14 @@
     terraform-docs
     vendir
     vscode
-    zed-editor-fhs
+    (zed-editor-fhs.overrideAttrs (old: {
+      doCheck = false;
+      cargoAbout = null;
+      cargoTestHook = "";
+      checkPhase = "echo skipping tests";
+      installCheckPhase = "echo skipping install checks";
+      postBuild = "";
+    }))
     (dotnetCorePackages.combinePackages [
       dotnetCorePackages.dotnet_8.sdk
       dotnetCorePackages.dotnet_9.sdk

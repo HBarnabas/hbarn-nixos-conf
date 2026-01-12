@@ -18,6 +18,12 @@
         modules = [
           ./hosts/desktop/configuration.nix
           home-manager.nixosModules.home-manager
+	  {
+	    nixpkgs.overlays = [
+	      (import ./overlays/zed-no-tests.nix)
+				(import ./overlays/webcord-npm-fix.nix)
+	    ];
+	  }
           {
        	    home-manager.useGlobalPkgs = true;
        	    home-manager.useUserPackages = true;
