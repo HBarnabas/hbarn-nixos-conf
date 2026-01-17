@@ -33,7 +33,7 @@
 
 		# chat
 		discord
-		webcord # borked on 2026.01.08.
+		# webcord # borked on 2026.01.08.
 
 		# dev
 		code-cursor

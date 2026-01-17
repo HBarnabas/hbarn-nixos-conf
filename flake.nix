@@ -21,7 +21,7 @@
 	  {
 	    nixpkgs.overlays = [
 	      (import ./overlays/zed-no-tests.nix)
-				(import ./overlays/webcord-npm-fix.nix)
+				# (import ./overlays/webcord-npm-fix.nix)
 	    ];
 	  }
           {
