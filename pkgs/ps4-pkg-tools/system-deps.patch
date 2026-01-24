@@ -1,0 +1,89 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0f0f0f0..1111111 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -20,18 +20,52 @@ endif()
+ 
+ ## --- Minimal dependency setup (CLI + optional GUI only) ---
+-# Use zlib from submodule (needed for PFSC decompression)
+-set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "Build zlib examples" FORCE)
+-set(ZLIB_BUILD_TESTS OFF CACHE BOOL "Build zlib tests" FORCE)
+-add_subdirectory(${CMAKE_SOURCE_DIR}/externals/zlib EXCLUDE_FROM_ALL)
+-
+-# Configure cryptopp from submodule (RSA/AES/HMAC)
+-set(CRYPTOPP_BUILD_TESTING OFF CACHE BOOL "Build cryptopp tests")
+-set(CRYPTOPP_BUILD_DOCUMENTATION OFF CACHE BOOL "Build cryptopp documentation")
+-set(CRYPTOPP_INSTALL OFF CACHE BOOL "Install cryptopp library")
+-set(CRYPTOPP_SOURCES ${CMAKE_SOURCE_DIR}/externals/cryptopp)
+-add_subdirectory(${CMAKE_SOURCE_DIR}/externals/cryptopp-cmake EXCLUDE_FROM_ALL)
++#
++# Nix-style option: prefer system libraries over vendored submodules.
++# When ON, this avoids requiring git submodules under `externals/*`.
++#
++option(USE_SYSTEM_DEPS "Use system zlib and Crypto++ instead of vendored submodules" OFF)
++
++if(USE_SYSTEM_DEPS)
++  # zlib (needed for PFSC decompression)
++  find_package(ZLIB REQUIRED)
++
++  # Crypto++ (RSA/AES/HMAC)
++  #
++  # Note: Crypto++ does not provide a fully consistent CMake package name across
++  # distros. Prefer a CMake config package if present, then fall back to finding
++  # the library + headers manually.
++  find_package(cryptopp CONFIG QUIET)
++  if(NOT TARGET cryptopp::cryptopp)
++    find_library(CRYPTOPP_LIBRARY NAMES cryptopp cryptopp-static cryptopp-static64)
++    find_path(CRYPTOPP_INCLUDE_DIR cryptopp/cryptlib.h)
++    if(NOT CRYPTOPP_LIBRARY OR NOT CRYPTOPP_INCLUDE_DIR)
++      message(FATAL_ERROR "Crypto++ not found. Install Crypto++ (cryptopp) development files or disable USE_SYSTEM_DEPS.")
++    endif()
++    add_library(cryptopp::cryptopp UNKNOWN IMPORTED)
++    set_target_properties(cryptopp::cryptopp PROPERTIES
++      IMPORTED_LOCATION "${CRYPTOPP_LIBRARY}"
++      INTERFACE_INCLUDE_DIRECTORIES "${CRYPTOPP_INCLUDE_DIR}"
++    )
++  endif()
++else()
++  # Use zlib from submodule (needed for PFSC decompression)
++  set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "Build zlib examples" FORCE)
++  set(ZLIB_BUILD_TESTS OFF CACHE BOOL "Build zlib tests" FORCE)
++  add_subdirectory(${CMAKE_SOURCE_DIR}/externals/zlib EXCLUDE_FROM_ALL)
++
++  # Configure cryptopp from submodule (RSA/AES/HMAC)
++  set(CRYPTOPP_BUILD_TESTING OFF CACHE BOOL "Build cryptopp tests")
++  set(CRYPTOPP_BUILD_DOCUMENTATION OFF CACHE BOOL "Build cryptopp documentation")
++  set(CRYPTOPP_INSTALL OFF CACHE BOOL "Install cryptopp library")
++  set(CRYPTOPP_SOURCES ${CMAKE_SOURCE_DIR}/externals/cryptopp)
++  add_subdirectory(${CMAKE_SOURCE_DIR}/externals/cryptopp-cmake EXCLUDE_FROM_ALL)
++endif()
+@@ -40,10 +74,17 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/externals/cryptopp-cmake EXCLUDE_FROM_ALL)
+ # Only include required source include paths (drop tracy, toml11, fmt, etc.)
+ include_directories(
+   ${CMAKE_SOURCE_DIR}/src
+-  ${CMAKE_SOURCE_DIR}/externals                # cryptopp headers
+-  ${CMAKE_SOURCE_DIR}/externals/zlib           # zlib headers
+ )
++if(NOT USE_SYSTEM_DEPS)
++  include_directories(
++    ${CMAKE_SOURCE_DIR}/externals              # cryptopp headers
++    ${CMAKE_SOURCE_DIR}/externals/zlib         # zlib headers
++  )
++endif()
+ 
+ # On Windows, include our compatibility header directory
+ if(MSVC)
+@@ -83,7 +124,12 @@ add_library(ps4_pkg_tool_core STATIC
+     ${CORE_FILES}
+     src/pkg_tool/lib.cpp
+ )
+ target_include_directories(ps4_pkg_tool_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
+-target_link_libraries(ps4_pkg_tool_core PUBLIC cryptopp::cryptopp zlibstatic)
++if(USE_SYSTEM_DEPS)
++  target_link_libraries(ps4_pkg_tool_core PUBLIC cryptopp::cryptopp ZLIB::ZLIB)
++else()
++  target_link_libraries(ps4_pkg_tool_core PUBLIC cryptopp::cryptopp zlibstatic)
++endif()
+ if(MSVC)
+   target_link_libraries(ps4_pkg_tool_core PUBLIC ws2_32)
+ endif()
