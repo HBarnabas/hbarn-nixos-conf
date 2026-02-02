@@ -66,6 +66,10 @@
       kubectl
       docker-credential-gcr
     ]))
+    k9s
+    kustomize
+    kubernetes-helm
+    postman
 
     #gaming
     deluge
@@ -78,6 +82,7 @@
         geckodriver
       ];
     })
+    shadps4
 
     # browser
     microsoft-edge
