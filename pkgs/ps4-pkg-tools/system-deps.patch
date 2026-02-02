@@ -1,8 +1,7 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 0f0f0f0..1111111 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -20,18 +20,52 @@ endif()
+@@ -20,18 +20,52 @@
  
  ## --- Minimal dependency setup (CLI + optional GUI only) ---
 -# Use zlib from submodule (needed for PFSC decompression)
@@ -57,7 +56,7 @@ index 0f0f0f0..1111111 100644
 +  set(CRYPTOPP_SOURCES ${CMAKE_SOURCE_DIR}/externals/cryptopp)
 +  add_subdirectory(${CMAKE_SOURCE_DIR}/externals/cryptopp-cmake EXCLUDE_FROM_ALL)
 +endif()
-@@ -40,10 +74,17 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/externals/cryptopp-cmake EXCLUDE_FROM_ALL)
+@@ -40,10 +74,17 @@
  # Only include required source include paths (drop tracy, toml11, fmt, etc.)
  include_directories(
    ${CMAKE_SOURCE_DIR}/src
@@ -66,15 +65,14 @@ index 0f0f0f0..1111111 100644
  )
 +if(NOT USE_SYSTEM_DEPS)
 +  include_directories(
-+    ${CMAKE_SOURCE_DIR}/externals              # cryptopp headers
-+    ${CMAKE_SOURCE_DIR}/externals/zlib         # zlib headers
++    ${CMAKE_SOURCE_DIR}/externals                # cryptopp headers
++    ${CMAKE_SOURCE_DIR}/externals/zlib           # zlib headers
 +  )
 +endif()
  
  # On Windows, include our compatibility header directory
  if(MSVC)
-@@ -83,7 +124,12 @@ add_library(ps4_pkg_tool_core STATIC
-     ${CORE_FILES}
+@@ -83,7 +124,12 @@
      src/pkg_tool/lib.cpp
  )
  target_include_directories(ps4_pkg_tool_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
