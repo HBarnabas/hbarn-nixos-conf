@@ -7,4 +7,6 @@
       pkgs.mesa
     ];
   };
+
+  services.xserver.videoDrivers = ["amdgpu"];
 }

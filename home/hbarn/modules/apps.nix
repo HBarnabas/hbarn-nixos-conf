@@ -83,9 +83,15 @@
       ];
     })
     shadps4
+    protonup-ng
 
     # browser
     microsoft-edge
 
   ];
+
+  # protonup path - run protonup to download latest proton-ge
+  home.sessionVariables = {
+    STEAM_EXTRA_COMPAT_TOOLS_PATHS = "\${HOME}/.steam/root/compatibilitytools.d";
+  };
 }
