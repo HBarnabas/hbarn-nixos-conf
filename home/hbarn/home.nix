@@ -10,7 +10,7 @@
     ./modules/dev.nix
     ./modules/sway-wm.nix
     ./modules/terminal.nix
-    ./modules/waybar.nix
+    ./modules/quickshell-bar/quickshell-bar.nix
   ];
 
   home.keyboard = null;
