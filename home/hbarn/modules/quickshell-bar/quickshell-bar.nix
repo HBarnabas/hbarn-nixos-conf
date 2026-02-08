@@ -1,308 +1,475 @@
 { pkgs, ... }:
 
 let
-  # A very small, self-contained QuickShell bar.
-  #
-  # Notes / assumptions:
-  # - This is intended for Wayland compositors that support the layer-shell protocol (Hyprland/Sway/etc).
-  # - Workspaces are integrated with Sway via `swaymsg -t get_outputs` and `swaymsg -t get_workspaces`.
-  # - The left side shows one group per output, with that output’s assigned workspaces (sorted numerically
-  #   when possible) and highlights the focused workspace.
-  #
-  # This keeps the look simple and “Waybar-ish”: small pills, top bar height ~30px.
+  home.file = {
+    ".config/quickshell/shell.qml" = {
+      text = ''
+        import Quickshell
+        import Quickshell.Wayland
+        import Quickshell.Io
+        import QtQuick
+        import QtQuick.Layouts
 
-  # qsScript = pkgs.writeText "quickshell-bar.qml" ''
-  #   import Quickshell
-  #   import Quickshell.Io
-  #   import QtQuick
-  #   import QtQuick.Effects
+        ShellRoot {
+            id: root
 
-  #   // QuickShell module names vary by version/distribution.
-  #   // The following pattern works in typical QuickShell setups that expose:
-  #   // - a top-level "Bar"/"Layer" element for layer-shell anchoring
-  #   // - simple widgets and a way to run commands / poll output
-  #   //
-  #   // If your quickshell build uses different type names, you only need to adjust the imports/types here.
-  #   //
-  #   // This file intentionally keeps the UI simple: left workspaces, right status.
-  #   // Width/height mimic a typical Waybar top bar.
+            // Theme colors
+            property color colBg: "#1a1b26"
+            property color colFg: "#a9b1d6"
+            property color colMuted: "#444b6a"
+            property color colCyan: "#0db9d7"
+            property color colPurple: "#ad8ee6"
+            property color colRed: "#f7768e"
+            property color colYellow: "#e0af68"
+            property color colBlue: "#7aa2f7"
 
-  #   Item {
-  #     id: root
-  #     width: 1920
-  #     height: 30
+            // Font
+            property string fontFamily: "JetBrainsMono Nerd Font"
+            property int fontSize: 14
 
-  #     // Simple styling
-  #     property color bg: "#111318"
-  #     property color fg: "#e6e6e6"
-  #     property color muted: "#a8b0bf"
-  #     property color accent: "#7aa2f7"
+            // System info properties
+            property string kernelVersion: "Linux"
+            property int cpuUsage: 0
+            property int memUsage: 0
+            property int diskUsage: 0
+            property int volumeLevel: 0
+            property string activeWindow: "Window"
+            property string currentLayout: "Tile"
+            property int focusedWorkspace: 1
+            property var occupiedWorkspaces: []
 
-  #     Rectangle {
-  #       anchors.fill: parent
-  #       radius: 0
-  #       color: root.bg
-  #       border.color: "#1d2230"
-  #       border.width: 1
-  #     }
+            // CPU tracking
+            property var lastCpuIdle: 0
+            property var lastCpuTotal: 0
 
-  #     // Helpers: very small "pill" component
-  #     Component {
-  #       id: pill
-  #       Rectangle {
-  #         property string text: ""
-  #         property color textColor: root.fg
-  #         property color fill: "#151a24"
-  #         property color stroke: "#23283a"
+            // Kernel version
+            Process {
+                id: kernelProc
+                command: ["uname", "-r"]
+                stdout: SplitParser {
+                    onRead: data => {
+                        if (data) kernelVersion = data.trim()
+                    }
+                }
+                Component.onCompleted: running = true
+            }
 
-  #         radius: 6
-  #         color: fill
-  #         border.color: stroke
-  #         border.width: 1
-  #         height: 22
-  #         width: label.implicitWidth + 16
+            // CPU usage
+            Process {
+                id: cpuProc
+                command: ["sh", "-c", "head -1 /proc/stat"]
+                stdout: SplitParser {
+                    onRead: data => {
+                        if (!data) return
+                        var parts = data.trim().split(/\s+/)
+                        var user = parseInt(parts[1]) || 0
+                        var nice = parseInt(parts[2]) || 0
+                        var system = parseInt(parts[3]) || 0
+                        var idle = parseInt(parts[4]) || 0
+                        var iowait = parseInt(parts[5]) || 0
+                        var irq = parseInt(parts[6]) || 0
+                        var softirq = parseInt(parts[7]) || 0
 
-  #         Text {
-  #           id: label
-  #           anchors.centerIn: parent
-  #           text: parent.text
-  #           color: parent.textColor
-  #           font.pixelSize: 12
-  #           font.family: "sans-serif"
-  #         }
-  #       }
-  #     }
+                        var total = user + nice + system + idle + iowait + irq + softirq
+                        var idleTime = idle + iowait
 
-  #     RowLayout {
-  #       anchors.fill: parent
-  #       anchors.leftMargin: 10
-  #       anchors.rightMargin: 10
-  #       anchors.topMargin: 4
-  #       anchors.bottomMargin: 4
-  #       spacing: 10
+                        if (lastCpuTotal > 0) {
+                            var totalDiff = total - lastCpuTotal
+                            var idleDiff = idleTime - lastCpuIdle
+                            if (totalDiff > 0) {
+                                cpuUsage = Math.round(100 * (totalDiff - idleDiff) / totalDiff)
+                            }
+                        }
+                        lastCpuTotal = total
+                        lastCpuIdle = idleTime
+                    }
+                }
+                Component.onCompleted: running = true
+            }
 
-  #       // LEFT: per-output workspaces (Sway)
-  #       // ------------------------------------------------------------
-  #       // This polls `qs-bar-sway-workspaces` (provided by this module) once per second.
-  #       // The script prints a compact, parseable format:
-  #       //   OUTPUT=HDMI-A-1|WS=1* 2 3
-  #       //   OUTPUT=eDP-1|WS=4 5* 6
-  #       //
-  #       // QuickShell implementations vary; this QML keeps rendering logic simple and leaves the Sway IPC
-  #       // complexity in the shell script.
-  #       RowLayout {
-  #         Layout.fillWidth: true
-  #         Layout.alignment: Qt.AlignVCenter
-  #         spacing: 8
+            // Memory usage
+            Process {
+                id: memProc
+                command: ["sh", "-c", "free | grep Mem"]
+                stdout: SplitParser {
+                    onRead: data => {
+                        if (!data) return
+                        var parts = data.trim().split(/\s+/)
+                        var total = parseInt(parts[1]) || 1
+                        var used = parseInt(parts[2]) || 0
+                        memUsage = Math.round(100 * used / total)
+                    }
+                }
+                Component.onCompleted: running = true
+            }
 
-  #         Text {
-  #           text: "WS"
-  #           color: root.muted
-  #           font.pixelSize: 12
-  #         }
+            // Disk usage
+            Process {
+                id: diskProc
+                command: ["sh", "-c", "df / | tail -1"]
+                stdout: SplitParser {
+                    onRead: data => {
+                        if (!data) return
+                        var parts = data.trim().split(/\s+/)
+                        var percentStr = parts[4] || "0%"
+                        diskUsage = parseInt(percentStr.replace('%', ' ')) || 0
+                    }
+                }
+                Component.onCompleted: running = true
+            }
 
-  #         // Render container. The actual population is expected to be handled by a command/polling widget
-  #         // in your QuickShell build. If you already have a "Command"/"Poll" element, wire it to:
-  #         //   qs-bar-sway-workspaces
-  #         // and then create pills from its stdout.
-  #         //
-  #         // For now we provide a reasonable static preview with the intended look.
-  #         RowLayout {
-  #           id: wsContainer
-  #           spacing: 6
+            // Volume level (wpctl for PipeWire)
+            Process {
+                id: volProc
+                command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]
+                stdout: SplitParser {
+                    onRead: data => {
+                        if (!data) return
+                        var match = data.match(/Volume:\s*([\d.]+)/)
+                        if (match) {
+                            volumeLevel = Math.round(parseFloat(match[1]) * 100)
+                        }
+                    }
+                }
+                Component.onCompleted: running = true
+            }
 
-  #           Loader {
-  #             active: true
-  #             sourceComponent: pill
-  #             onLoaded: {
-  #               item.text = "eDP-1: 1* 2 3"
-  #               item.textColor = root.fg
-  #             }
-  #           }
+            // Active window title (sway)
+            Process {
+                id: windowProc
+                command: ["sh", "-c", "swaymsg -t get_tree | jq -r '.. | select(.focused? == true) | .name // empty' | head -1"]
+                stdout: SplitParser {
+                    onRead: data => {
+                        if (data && data.trim()) {
+                            activeWindow = data.trim()
+                        }
+                    }
+                }
+                Component.onCompleted: running = true
+            }
 
-  #           Loader {
-  #             active: true
-  #             sourceComponent: pill
-  #             onLoaded: {
-  #               item.text = "HDMI-A-1: 4 5* 6"
-  #               item.textColor = root.fg
-  #             }
-  #           }
-  #         }
-  #       }
+            // Current layout (sway: splith, splitv, tabbed, stacking)
+            Process {
+                id: layoutProc
+                command: ["sh", "-c", "swaymsg -t get_tree | jq -r '.. | select(.focused? == true) | .layout // empty' | head -1"]
+                stdout: SplitParser {
+                    onRead: data => {
+                        if (data && data.trim()) {
+                            var layout = data.trim()
+                            // Convert sway layout names to friendly names
+                            if (layout === "splith") {
+                                currentLayout = "Horizontal"
+                            } else if (layout === "splitv") {
+                                currentLayout = "Vertical"
+                            } else if (layout === "tabbed") {
+                                currentLayout = "Tabbed"
+                            } else if (layout === "stacking") {
+                                currentLayout = "Stacking"
+                            } else if (layout === "output" || layout === "none") {
+                                currentLayout = "Tiled"
+                            } else {
+                                currentLayout = layout.charAt(0).toUpperCase() + layout.slice(1)
+                            }
+                        }
+                    }
+                }
+                Component.onCompleted: running = true
+            }
 
-  #       // RIGHT: status modules
-  #       // ------------------------------------------------------------
-  #       RowLayout {
-  #         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-  #         spacing: 8
+            // Focused workspace (sway)
+            Process {
+                id: workspaceProc
+                command: ["sh", "-c", "swaymsg -t get_workspaces | jq -r '.[] | select(.focused == true) | .num'"]
+                stdout: SplitParser {
+                    onRead: data => {
+                        if (data && data.trim()) {
+                            var num = parseInt(data.trim())
+                            if (!isNaN(num)) {
+                                focusedWorkspace = num
+                            }
+                        }
+                    }
+                }
+                Component.onCompleted: running = true
+            }
 
-  #         // IP
-  #         Loader {
-  #           sourceComponent: pill
-  #           onLoaded: { item.text = "IP: …"; }
-  #         }
+            // Occupied workspaces (sway)
+            Process {
+                id: occupiedProc
+                command: ["sh", "-c", "swaymsg -t get_workspaces | jq -r '.[].num'"]
+                stdout: SplitParser {
+                    onRead: data => {
+                        if (data && data.trim()) {
+                            var nums = data.trim().split('\n').map(n => parseInt(n)).filter(n => !isNaN(n))
+                            occupiedWorkspaces = nums
+                        }
+                    }
+                }
+                Component.onCompleted: running = true
+            }
 
-  #         // CPU
-  #         Loader {
-  #           sourceComponent: pill
-  #           onLoaded: { item.text = "CPU: …"; }
-  #         }
+            // Slow timer for system stats
+            Timer {
+                interval: 2000
+                running: true
+                repeat: true
+                onTriggered: {
+                    cpuProc.running = true
+                    memProc.running = true
+                    diskProc.running = true
+                    volProc.running = true
+                }
+            }
 
-  #         // MEM
-  #         Loader {
-  #           sourceComponent: pill
-  #           onLoaded: { item.text = "MEM: …"; }
-  #         }
+            // Fast timer for window/layout/workspace (sway doesn't have event hooks in quickshell)
+            Timer {
+                interval: 200
+                running: true
+                repeat: true
+                onTriggered: {
+                    windowProc.running = true
+                    layoutProc.running = true
+                    workspaceProc.running = true
+                    occupiedProc.running = true
+                }
+            }
 
-  #         // Keyboard layout
-  #         Loader {
-  #           sourceComponent: pill
-  #           onLoaded: { item.text = "KB: …"; }
-  #         }
+            Variants {
+                model: Quickshell.screens
 
-  #         // Volume
-  #         Loader {
-  #           sourceComponent: pill
-  #           onLoaded: { item.text = "VOL: …"; }
-  #         }
+                PanelWindow {
+                    property var modelData
+                    screen: modelData
 
-  #         // Time
-  #         Loader {
-  #           sourceComponent: pill
-  #           onLoaded: { item.text = "TIME: …"; }
-  #         }
-  #       }
-  #     }
-  #   }
-  # '';
+                    anchors {
+                        top: true
+                        left: true
+                        right: true
+                    }
 
-  # # A tiny helper script that prints status values in a stable way.
-  # # We keep it conservative and dependency-light.
-  # #
-  # # QuickShell can consume these via command polling (e.g. every second).
-  # statusScript = pkgs.writeShellScriptBin "qs-bar-status" ''
-  #   set -eu
+                    implicitHeight: 30
+                    color: root.colBg
 
-  #   cmd=''${1:-}
+                    margins {
+                        top: 0
+                        bottom: 0
+                        left: 0
+                        right: 0
+                    }
 
-  #   case "$cmd" in
-  #     ip)
-  #       # Prefer the default route when possible; otherwise first global IPv4.
-  #       ip route get 1.1.1.1 2>/dev/null | awk '/src/ {print $7; exit}' || true
-  #       if [ -z "''${ip:-}" ]; then
-  #         ip -4 -o addr show scope global 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n1
-  #       else
-  #         echo "$ip"
-  #       fi
-  #       ;;
-  #     cpu)
-  #       # CPU usage since last call using /proc/stat deltas.
-  #       # Store previous in a temp file keyed by UID.
-  #       tmp="''${XDG_RUNTIME_DIR:-/tmp}/qs-bar-cpu.$UID"
-  #       read -r _ user nice sys idle iowait irq softirq steal guest guest_nice < /proc/stat
-  #       total=$((user+nice+sys+idle+iowait+irq+softirq+steal))
-  #       idle_all=$((idle+iowait))
-  #       if [ -f "$tmp" ]; then
-  #         read -r ptotal pidle < "$tmp" || true
-  #       else
-  #         ptotal=$total
-  #         pidle=$idle_all
-  #       fi
-  #       echo "$total $idle_all" > "$tmp"
-  #       dt=$((total-ptotal))
-  #       di=$((idle_all-pidle))
-  #       if [ "$dt" -le 0 ]; then
-  #         echo "0%"
-  #       else
-  #         usage=$(( (100*(dt-di)) / dt ))
-  #         echo "''${usage}%"
-  #       fi
-  #       ;;
-  #     mem)
-  #       # Mem used percentage from /proc/meminfo
-  #       memtotal=$(awk '/MemTotal:/ {print $2}' /proc/meminfo)
-  #       memavail=$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)
-  #       used=$((memtotal-memavail))
-  #       pct=$(( (100*used) / memtotal ))
-  #       echo "''${pct}%"
-  #       ;;
-  #     kbd)
-  #       # On Sway, layouts are typically per-input; this is a "best effort" single-line summary.
-  #       # If you use sway + swaykbdd you could wire that here instead.
-  #       if command -v swaymsg >/dev/null 2>&1; then
-  #         swaymsg -t get_inputs -r 2>/dev/null | jq -r '
-  #           [ .[] | select(.type=="keyboard") | .xkb_active_layout_name ] | map(select(. != null)) | first // empty
-  #         ' | awk '{print toupper($1)}' || true
-  #       elif command -v localectl >/dev/null 2>&1; then
-  #         localectl status 2>/dev/null | awk -F: '/X11 Layout/ {gsub(/ /,"",$2); print toupper($2)}' | head -n1
-  #       fi
-  #       ;;
-  #     vol)
-  #       # PipeWire/WirePlumber via wpctl if present, else amixer.
-  #       if command -v wpctl >/dev/null 2>&1; then
-  #         wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{printf("%d%%", $2*100)}'
-  #       elif command -v amixer >/dev/null 2>&1; then
-  #         amixer get Master 2>/dev/null | awk -F'[][]' 'END{print $2}'
-  #       fi
-  #       ;;
-  #     time)
-  #       date '+%a %b %d  %H:%M'
-  #       ;;
-  #     *)
-  #       echo "unknown"
-  #       exit 1
-  #       ;;
-  #   esac
-  # '';
+                    Rectangle {
+                        anchors.fill: parent
+                        color: root.colBg
 
-  # # Sway: per-output workspace listing.
-  # # Output format (one line per output):
-  # #   OUTPUT=<name>|WS=<ws1> <ws2*> <ws3>
-  # #
-  # # `*` marks focused workspace.
-  # swayWorkspacesScript = pkgs.writeShellScriptBin "qs-bar-sway-workspaces" ''
-  #   set -eu
+                        RowLayout {
+                            anchors.fill: parent
+                            spacing: 0
 
-  #   if ! command -v swaymsg >/dev/null 2>&1; then
-  #     exit 0
-  #   fi
+                            Item { width: 8 }
 
-  #   outputs_json="$(swaymsg -t get_outputs -r 2>/dev/null || true)"
-  #   workspaces_json="$(swaymsg -t get_workspaces -r 2>/dev/null || true)"
+                            Repeater {
+                                model: 9
 
-  #   if [ -z "$outputs_json" ] || [ -z "$workspaces_json" ]; then
-  #     exit 0
-  #   fi
+                                Rectangle {
+                                    Layout.preferredWidth: 20
+                                    Layout.preferredHeight: parent.height
+                                    color: "transparent"
 
-  #   # For each active output, list its workspaces (sorted by numeric prefix when possible).
-  #   echo "$outputs_json" | jq -r '
-  #     [.[] | select(.active==true) | .name] | .[]
-  #   ' | while IFS= read -r out; do
-  #     ws_line="$(echo "$workspaces_json" | jq -r --arg out "$out" '
-  #       [ .[]
-  #         | select(.output == $out)
-  #         | {name, num, focused}
-  #       ]
-  #       | sort_by(.num)
-  #       | map(if .focused then (.name + "*") else .name end)
-  #       | join(" ")
-  #     ')"
-  #     [ -n "$ws_line" ] || ws_line=""
-  #     printf "OUTPUT=%s|WS=%s\n" "$out" "$ws_line"
-  #   done
-  # '';
+                                    property bool isActive: focusedWorkspace === (index + 1)
+                                    property bool hasWindows: occupiedWorkspaces.indexOf(index + 1) !== -1
 
+                                    Text {
+                                        text: index + 1
+                                        color: parent.isActive ? root.colCyan : (parent.hasWindows ? root.colCyan : root.colMuted)
+                                        font.pixelSize: root.fontSize
+                                        font.family: root.fontFamily
+                                        font.bold: true
+                                        anchors.centerIn: parent
+                                    }
+
+                                    Rectangle {
+                                        width: 20
+                                        height: 3
+                                        color: parent.isActive ? root.colPurple : root.colBg
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        anchors.bottom: parent.bottom
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        onClicked: {
+                                            var proc = Qt.createQmlObject('import Quickshell.Io; Process { }', parent)
+                                            proc.command = ["swaymsg", "workspace", String(index + 1)]
+                                            proc.running = true
+                                        }
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 1
+                                Layout.preferredHeight: 16
+                                Layout.alignment: Qt.AlignVCenter
+                                Layout.leftMargin: 8
+                                Layout.rightMargin: 8
+                                color: root.colMuted
+                            }
+
+                            Text {
+                                text: currentLayout
+                                color: root.colFg
+                                font.pixelSize: root.fontSize
+                                font.family: root.fontFamily
+                                font.bold: true
+                                Layout.leftMargin: 5
+                                Layout.rightMargin: 5
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 1
+                                Layout.preferredHeight: 16
+                                Layout.alignment: Qt.AlignVCenter
+                                Layout.leftMargin: 2
+                                Layout.rightMargin: 8
+                                color: root.colMuted
+                            }
+
+                            Text {
+                                text: activeWindow
+                                color: root.colPurple
+                                font.pixelSize: root.fontSize
+                                font.family: root.fontFamily
+                                font.bold: true
+                                Layout.fillWidth: true
+                                Layout.leftMargin: 8
+                                elide: Text.ElideRight
+                                maximumLineCount: 1
+                            }
+
+                            Text {
+                                text: kernelVersion
+                                color: root.colRed
+                                font.pixelSize: root.fontSize
+                                font.family: root.fontFamily
+                                font.bold: true
+                                Layout.rightMargin: 8
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 1
+                                Layout.preferredHeight: 16
+                                Layout.alignment: Qt.AlignVCenter
+                                Layout.leftMargin: 0
+                                Layout.rightMargin: 8
+                                color: root.colMuted
+                            }
+
+                            Text {
+                                text: "CPU: " + cpuUsage + "%"
+                                color: root.colYellow
+                                font.pixelSize: root.fontSize
+                                font.family: root.fontFamily
+                                font.bold: true
+                                Layout.rightMargin: 8
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 1
+                                Layout.preferredHeight: 16
+                                Layout.alignment: Qt.AlignVCenter
+                                Layout.leftMargin: 0
+                                Layout.rightMargin: 8
+                                color: root.colMuted
+                            }
+
+                            Text {
+                                text: "Mem: " + memUsage + "%"
+                                color: root.colCyan
+                                font.pixelSize: root.fontSize
+                                font.family: root.fontFamily
+                                font.bold: true
+                                Layout.rightMargin: 8
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 1
+                                Layout.preferredHeight: 16
+                                Layout.alignment: Qt.AlignVCenter
+                                Layout.leftMargin: 0
+                                Layout.rightMargin: 8
+                                color: root.colMuted
+                            }
+
+                            Text {
+                                text: "Disk: " + diskUsage + "%"
+                                color: root.colBlue
+                                font.pixelSize: root.fontSize
+                                font.family: root.fontFamily
+                                font.bold: true
+                                Layout.rightMargin: 8
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 1
+                                Layout.preferredHeight: 16
+                                Layout.alignment: Qt.AlignVCenter
+                                Layout.leftMargin: 0
+                                Layout.rightMargin: 8
+                                color: root.colMuted
+                            }
+
+                            Text {
+                                text: "Vol: " + volumeLevel + "%"
+                                color: root.colPurple
+                                font.pixelSize: root.fontSize
+                                font.family: root.fontFamily
+                                font.bold: true
+                                Layout.rightMargin: 8
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 1
+                                Layout.preferredHeight: 16
+                                Layout.alignment: Qt.AlignVCenter
+                                Layout.leftMargin: 0
+                                Layout.rightMargin: 8
+                                color: root.colMuted
+                            }
+
+                            Text {
+                                id: clockText
+                                text: Qt.formatDateTime(new Date(), "ddd, MMM dd - HH:mm")
+                                color: root.colCyan
+                                font.pixelSize: root.fontSize
+                                font.family: root.fontFamily
+                                font.bold: true
+                                Layout.rightMargin: 8
+
+                                Timer {
+                                    interval: 1000
+                                    running: true
+                                    repeat: true
+                                    onTriggered: clockText.text = Qt.formatDateTime(new Date(), "ddd, MMM dd - HH:mm")
+                                }
+                            }
+
+                            Item { width: 8 }
+                        }
+                    }
+                }
+            }
+        }
+      '';
+    };
+  };
   configs = builtins.path {
     path = ./configs;
     name = "quickshell-configs";
   };
-
 in
 {
   programs.quickshell = {
     enable = true;
-    activeConfig = configs; # The name of the config to use.
-    systemd.enable = true;
+    activeConfig = configs;
   };
 }

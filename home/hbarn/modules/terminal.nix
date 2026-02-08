@@ -1,12 +1,6 @@
 { pkgs, ... }:
 
 {
-  programs.bash = {
-    shellAliases = {
-      ssh = "kitty +kitten ssh";
-    };
-  };
-
   programs.kitty = {
     enable = true;
 		settings = {

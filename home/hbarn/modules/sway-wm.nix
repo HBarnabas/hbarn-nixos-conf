@@ -38,6 +38,15 @@
         { output = "HDMI-A-2"; workspace = "8"; }
         { output = "HDMI-A-2"; workspace = "9"; }
       ];
+      # startup = [
+      #   {
+      #     always = true;
+      #     command = "exec quickshell";
+      #   }
+      # ];
+      bars = [
+        { mode = "invisible"; }
+      ];
     };
     extraConfigEarly = ''
       gaps inner 6
@@ -50,6 +59,7 @@
       shadows enable
       shadow_color 000000AA
       shadow_blur_radius 20
+      exec quickshell
     '';
     extraConfig = ''
       bindsym Print			exec shotman -c output

@@ -11,6 +11,7 @@
     ./modules/sway-wm.nix
     ./modules/terminal.nix
     ./modules/quickshell-bar/quickshell-bar.nix
+    ./modules/aliases.nix
   ];
 
   home.keyboard = null;
