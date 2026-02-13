@@ -36,7 +36,7 @@
 		# webcord # borked on 2026.01.08.
 
 		# dev
-		code-cursor
+		go
 		go-task
     inetutils
     jdk8
