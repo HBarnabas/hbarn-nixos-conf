@@ -6,6 +6,8 @@
 		settings = {
 		  confirm_os_window_close = 0;
 		  font_family = "Roboto Mono";
+			cursor_shape = "block";
 		};
+		enableGitIntegration = true;
   };
 }

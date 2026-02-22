@@ -8,5 +8,9 @@
     ];
   };
 
-  services.xserver.videoDrivers = ["amdgpu"];
+  services.xserver = {
+    enable = true;
+    videoDrivers = ["amdgpu"];
+  };
+  services.desktopManager.plasma6.enable = true;
 }
