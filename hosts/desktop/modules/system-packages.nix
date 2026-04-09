@@ -13,6 +13,8 @@
 
   environment.systemPackages = with pkgs; [
     gnome-keyring
+    gparted
+    ntfs3g
     wlroots_0_19
     xdg-desktop-portal
     xdg-desktop-portal-wlr

@@ -19,6 +19,7 @@
     ./modules/system-packages.nix
     ./modules/users.nix
     ./modules/vm.nix
+    ./modules/virt-secret-fix.nix
   ];
 
   system.stateVersion = "24.05"; # Did you read the comment?

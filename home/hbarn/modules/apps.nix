@@ -5,14 +5,14 @@
     # utility
     btop
     curl
+    fastfetch
 		grim
 		htop
 		keepassxc
-    neofetch
-    ntfs3g
     mako
 		mc
     memtester
+    monado
     shotman
 		slurp
     stress
@@ -24,8 +24,6 @@
     wl-clipboard
     wofi
     xournalpp
-    whitesur-kde
-    monado
 
 		# media
 		gimp3
@@ -50,15 +48,16 @@
     tflint
     terraform-docs
     vendir
-    vscode
-    (zed-editor-fhs.overrideAttrs (old: {
-      doCheck = false;
-      cargoAbout = null;
-      cargoTestHook = "";
-      checkPhase = "echo skipping tests";
-      installCheckPhase = "echo skipping install checks";
-      postBuild = "";
-    }))
+    # vscode
+    zed-editor-fhs
+    # (zed-editor-fhs.overrideAttrs (old: {
+    #   doCheck = false;
+    #   cargoAbout = null;
+    #   cargoTestHook = "";
+    #   checkPhase = "echo skipping tests";
+    #   installCheckPhase = "echo skipping install checks";
+    #   postBuild = "";
+    # }))
     (dotnetCorePackages.combinePackages [
       dotnetCorePackages.dotnet_8.sdk
       dotnetCorePackages.dotnet_9.sdk
@@ -88,15 +87,16 @@
     protonup-ng
 
     # browser
+    microsoft-edge
     # Pin Microsoft Edge stable to a known-good upstream .deb (the newer stable URLs were returning 404).
-    (pkgs.microsoft-edge.overrideAttrs (old: rec {
-      version = "144.0.3719.115";
+    # (pkgs.microsoft-edge.overrideAttrs (old: rec {
+    #   version = "144.0.3719.115";
 
-      src = pkgs.fetchurl {
-        url = "https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_${version}-1_amd64.deb";
-        sha256 = "sha256-HoV2D51zxewFwwu92efEDgohu1yJf1UyjekO3YWZqPc=";
-      };
-    }))
+    #   src = pkgs.fetchurl {
+    #     url = "https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_${version}-1_amd64.deb";
+    #     sha256 = "sha256-HoV2D51zxewFwwu92efEDgohu1yJf1UyjekO3YWZqPc=";
+    #   };
+    # }))
 
   ];
 
