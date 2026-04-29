@@ -4,15 +4,18 @@
   home.packages = with pkgs; [
     # utility
     btop
+    # blender
     curl
     fastfetch
+    # freecad
+    # furmark
 		grim
 		htop
 		keepassxc
     mako
 		mc
     memtester
-    monado
+    # monado
     shotman
 		slurp
     stress
@@ -23,12 +26,12 @@
     wget
     wl-clipboard
     wofi
-    xournalpp
+    # xournalpp
 
 		# media
 		gimp3
 		pavucontrol
-		spotify
+    spotify
 		vlc
 
 		# chat
@@ -41,8 +44,8 @@
     inetutils
     jdk8
     jq
-		python311
-    slack
+		# python311
+    # slack
 		sublime-merge
 		tenv # set TENV_AUTO_INSTALL=true
     tflint
@@ -78,16 +81,17 @@
     heroic
     wineWow64Packages.stable
     winetricks
-    (lutris.override {
-      extraLibraries = pkgs: [
-        geckodriver
-      ];
-    })
-    shadps4
+    # (lutris.override {
+    #   extraLibraries = pkgs: [
+    #     geckodriver
+    #   ];
+    # })
+    # shadps4
     protonup-ng
 
     # browser
-    microsoft-edge
+    stable.microsoft-edge
+    vivaldi
     # Pin Microsoft Edge stable to a known-good upstream .deb (the newer stable URLs were returning 404).
     # (pkgs.microsoft-edge.overrideAttrs (old: rec {
     #   version = "144.0.3719.115";
