@@ -9,7 +9,7 @@
 
     # optional alternative (stable)
     nixpkgs-stable = {
-      url = "github:NixOS/nixpkgs?ref=release-25.11";
+      url = "github:NixOS/nixpkgs?ref=release-26.05";
     };
 
     home-manager = {

@@ -27,6 +27,7 @@
     wl-clipboard
     wofi
     # xournalpp
+    yazi
 
 		# media
 		gimp3
@@ -65,7 +66,7 @@
       dotnetCorePackages.dotnet_8.sdk
       dotnetCorePackages.dotnet_9.sdk
     ])
-    (google-cloud-sdk.withExtraComponents( with google-cloud-sdk.components; [
+    (stable.google-cloud-sdk.withExtraComponents( with stable.google-cloud-sdk.components; [
       gke-gcloud-auth-plugin
       kubectl
       docker-credential-gcr
@@ -86,7 +87,7 @@
     #     geckodriver
     #   ];
     # })
-    # shadps4
+    shadps4
     protonup-ng
 
     # browser

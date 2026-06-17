@@ -65,6 +65,16 @@
       bindsym Print			exec shotman -c output
       bindsym Print+Shift		exec shotman -c region
       bindsym Print+Shift+Control 	exec shotman -c window
+
+      # Media controls
+      bindsym Mod4+F1 exec playerctl play-pause
+      bindsym Mod4+F2 exec playerctl previous
+      bindsym Mod4+F3 exec playerctl next
+
+      # Audio controls
+      bindsym Mod4+F4 exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+      bindsym Mod4+F5 exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+
+      bindsym Mod4+F6 exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
     '';
   };
 }
