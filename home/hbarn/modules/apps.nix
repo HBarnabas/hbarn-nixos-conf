@@ -37,6 +37,7 @@
 
 		# chat
 		discord
+		fluxer-canary
 		# webcord # borked on 2026.01.08.
 
 		# dev

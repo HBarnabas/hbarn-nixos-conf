@@ -23,6 +23,7 @@
       overlays = [
         (import ./overlays/ps4-pkg-tools.nix)
         (import ./overlays/zed-no-tests.nix)
+        (import ./overlays/fluxer.nix)
         # (import ./overlays/webcord-npm-fix.nix)
       ];
     in
