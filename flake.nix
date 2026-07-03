@@ -22,6 +22,7 @@
     let
       overlays = [
         (import ./overlays/ps4-pkg-tools.nix)
+        (import ./overlays/pcpanel.nix)
         # (import ./overlays/fluxer.nix)
         # (import ./overlays/webcord-npm-fix.nix)
       ];
