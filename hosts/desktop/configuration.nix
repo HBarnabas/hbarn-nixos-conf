@@ -16,6 +16,7 @@
     ./modules/greetd.nix
     ./modules/locale.nix
     ./modules/networking.nix
+    ./modules/pcpanel.nix
     ./modules/system-packages.nix
     ./modules/users.nix
     ./modules/vm.nix
