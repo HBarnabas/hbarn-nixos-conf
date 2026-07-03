@@ -38,12 +38,12 @@
         { output = "HDMI-A-2"; workspace = "8"; }
         { output = "HDMI-A-2"; workspace = "9"; }
       ];
-      # startup = [
-      #   {
-      #     always = true;
-      #     command = "exec quickshell";
-      #   }
-      # ];
+      startup = [
+        # Start the PCPanel controller in the background (no window).
+        # Running `pcpanel` manually later will show the window of the
+        # already-running instance.
+        { command = "pcpanel quiet"; }
+      ];
       bars = [
         { mode = "invisible"; }
       ];
