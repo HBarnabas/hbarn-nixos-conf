@@ -37,10 +37,11 @@
 
 		# chat
 		discord
-		fluxer-canary
+		# fluxer-canary
 		# webcord # borked on 2026.01.08.
 
 		# dev
+		github-copilot-cli
 		go
 		go-task
     inetutils
