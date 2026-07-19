@@ -7,20 +7,20 @@
     enable = true;
     efiSupport = true;
     device = "nodev";
-    extraEntries = ''
-      # menuentry "CachyOS" {
-      # search --label --set=root CachyOS
-      # linux /boot/vmlinuz-linux-cachyos root=LABEL=CachyOS rw quiet splash
-      # initrd /boot/initramfs-linux-cachyos.img
-      # }
+    # extraEntries = ''
+    #   # menuentry "CachyOS" {
+    #   # search --label --set=root CachyOS
+    #   # linux /boot/vmlinuz-linux-cachyos root=LABEL=CachyOS rw quiet splash
+    #   # initrd /boot/initramfs-linux-cachyos.img
+    #   # }
 
-      menuentry "Win 11" {
-      insmod part_gpt
-      insmod fat
-      search --no-floppy --file --set=root /EFI/Microsoft/Boot/bootmgfw.efi
-      chainloader /EFI/Microsoft/Boot/bootmgfw.efi
-      }
-    '';
+    #   menuentry "Win 11" {
+    #   insmod part_gpt
+    #   insmod fat
+    #   search --no-floppy --file --set=root /EFI/Microsoft/Boot/bootmgfw.efi
+    #   chainloader /EFI/Microsoft/Boot/bootmgfw.efi
+    #   }
+    # '';
   };
   services.greetd = {
     enable = true;
@@ -32,7 +32,7 @@
       environment = {
         XDG_SESSION_TYPE = "wayland";
         XDG_RUNTIME_DIR = "/run/user/%UID%";
-        DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/%UID/bus";
+        DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/%UID%/bus";
         PATH = "/run/current-system/sw/bin";
       };
     };
