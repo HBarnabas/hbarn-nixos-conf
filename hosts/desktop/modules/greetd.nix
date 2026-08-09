@@ -1,5 +1,16 @@
 { pkgs, ... }:
 
+let
+  # Picks the session command based on the user that logged in.
+  # greetd runs this as the authenticated user, so $USER is reliable here.
+  session-dispatch = pkgs.writeShellScriptBin "session-dispatch" ''
+    case "$USER" in
+      hbarn) exec sway ;;
+      hhinoki) exec startplasma-wayland ;;
+      *) exec sway ;;
+    esac
+  '';
+in
 {
   boot.loader.systemd-boot.enable = false;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -26,7 +37,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --user-menu --cmd sway";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --user-menu --cmd ${session-dispatch}/bin/session-dispatch";
         user = "greeter";
       };
       environment = {

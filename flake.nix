@@ -16,9 +16,15 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    plasma-manager = {
+      url = "github:nix-community/plasma-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-stable, home-manager }:
+  outputs = { self, nixpkgs, nixpkgs-stable, home-manager, plasma-manager }:
     let
       overlays = [
         (import ./overlays/ps4-pkg-tools.nix)
@@ -58,6 +64,13 @@
               home-manager.users.hbarn = {
                 imports = [
                   ./home/hbarn/home.nix
+                ];
+              };
+
+              home-manager.users.hhinoki = {
+                imports = [
+                  plasma-manager.homeModules.plasma-manager
+                  ./home/hhinoki/home.nix
                 ];
               };
             }

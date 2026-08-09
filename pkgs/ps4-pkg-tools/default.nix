@@ -42,7 +42,7 @@ stdenv.mkDerivation rec {
     rev = "HEAD";
 
     # NOTE: If you change `rev`, you'll need to update this hash.
-    hash = "sha256-GiP35dIbu+dRH85DCiAezzO1Vlv/E58crkdLEigx4U0=";
+    hash = "sha256-Hfe5J9UIOFIq20kunoOnxVCTpYg6HKCEUmh3Ps9qX8Y=";
   };
 
   postPatch = ''

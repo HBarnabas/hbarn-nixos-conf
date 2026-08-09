@@ -3,6 +3,7 @@
 {
   home.packages = with pkgs; [
     # utility
+    baobab
     btop
     # blender
     curl
@@ -14,18 +15,18 @@
 		keepassxc
     mako
 		mc
-    memtester
+    # memtester
     # monado
     shotman
 		slurp
-    stress
+    # stress
     tmux
-    unrar
-    unzip
+    # unrar
+    # unzip
     vim
     wget
     wl-clipboard
-    wofi
+    # wofi
     # xournalpp
     yazi
 
@@ -41,13 +42,13 @@
 		# webcord # borked on 2026.01.08.
 
 		# dev
-		github-copilot-cli
+		# github-copilot-cli
 		go
 		go-task
     inetutils
     jdk8
     jq
-		# python311
+    # python311
     # slack
 		sublime-merge
 		tenv # set TENV_AUTO_INSTALL=true
@@ -79,16 +80,18 @@
     postman
 
     #gaming
-    deluge
-    gnome-sudoku
-    heroic
+    # deluge
+    qbittorrent
+    # stable.freecad
+    # gnome-sudoku
+    # heroic
     wineWow64Packages.stable
     winetricks
-    # (lutris.override {
-    #   extraLibraries = pkgs: [
-    #     geckodriver
-    #   ];
-    # })
+    (lutris.override {
+      extraLibraries = pkgs: [
+        geckodriver
+      ];
+    })
     shadps4
     protonup-ng
 
