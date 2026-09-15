@@ -14,6 +14,7 @@
     ./modules/fonts.nix
     ./modules/graphics.nix
     ./modules/greetd.nix
+    ./modules/libvirt-bridge-network.nix
     ./modules/locale.nix
     ./modules/networking.nix
     ./modules/nix-build-dir.nix
