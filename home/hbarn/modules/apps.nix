@@ -29,6 +29,11 @@
     # wofi
     # xournalpp
     yazi
+    rpi-imager
+    unzip
+    icloudpd
+    sops
+    age
 
 		# media
 		gimp3
