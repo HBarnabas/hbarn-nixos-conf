@@ -18,20 +18,20 @@ in
     enable = true;
     efiSupport = true;
     device = "nodev";
-    # extraEntries = ''
+    extraEntries = ''
     #   # menuentry "CachyOS" {
     #   # search --label --set=root CachyOS
     #   # linux /boot/vmlinuz-linux-cachyos root=LABEL=CachyOS rw quiet splash
     #   # initrd /boot/initramfs-linux-cachyos.img
     #   # }
 
-    #   menuentry "Win 11" {
-    #   insmod part_gpt
-    #   insmod fat
-    #   search --no-floppy --file --set=root /EFI/Microsoft/Boot/bootmgfw.efi
-    #   chainloader /EFI/Microsoft/Boot/bootmgfw.efi
-    #   }
-    # '';
+      menuentry "Win 11" {
+      insmod part_gpt
+      insmod fat
+      search --no-floppy --file --set=root /EFI/Microsoft/Boot/bootmgfw.efi
+      chainloader /EFI/Microsoft/Boot/bootmgfw.efi
+      }
+    '';
   };
   services.greetd = {
     enable = true;

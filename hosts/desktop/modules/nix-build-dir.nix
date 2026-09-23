@@ -19,7 +19,7 @@
 
 let
   useSsdBuildDir = true;
-  backingMount = "/home/hbarn/mnt/ssd-wd-sata-0";
+  backingMount = "/home/hbarn/mnt/ssd-wd-sata-1";
   ssdDir = "${backingMount}/nix-build";
   buildDir = "/nix-build";
 in

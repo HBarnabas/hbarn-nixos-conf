@@ -99,10 +99,16 @@
     })
     shadps4
     protonup-ng
+    (prismlauncher.override {
+      jdks = [
+        jdk8 jdk25
+      ];
+    })
 
     # browser
     stable.microsoft-edge
     vivaldi
+    google-chrome
     # Pin Microsoft Edge stable to a known-good upstream .deb (the newer stable URLs were returning 404).
     # (pkgs.microsoft-edge.overrideAttrs (old: rec {
     #   version = "144.0.3719.115";
