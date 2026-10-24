@@ -2,18 +2,27 @@
 
 {
   # Define a user account. Don't forget to set a password with ‘passwd’.
+  # Group that owns the nix config checkout (/srv/nix-conf).
+  users.groups.nixadmins = { };
+
   users.users.hbarn = {
     isNormalUser = true;
     description = "barnabas hegedus";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" "nixadmins" ];
   };
 
   users.users.hhinoki = {
     isNormalUser = true;
     description = "hhinoki";
-    extraGroups = [ "networkmanager" ];
+    extraGroups = [ "networkmanager" "wheel" "nixadmins" ];
     initialPassword = "changeme"; # change with `passwd` after first login
   };
+
+  # Setgid dir owned by nixadmins; `Z` recursively applies owner/group and
+  # group-writable modes to the checkout on every activation.
+  systemd.tmpfiles.rules = [
+    "Z /srv/nix-conf 2775 root nixadmins -"
+  ];
 
   zramSwap = {
     enable = true;

@@ -42,11 +42,11 @@
 
 stdenv.mkDerivation rec {
   pname = "pcpanel";
-  version = "1.7.1";
+  version = "2.1.0";
 
   src = fetchurl {
     url = "https://github.com/nvdweem/PCPanel/releases/download/v${version}/pcpanel_${version}_amd64.deb";
-    hash = "sha256-Uy7sx5l2eM6qYDhVCTNAL/vItaECSY8x5qityu574KI=";
+    hash = "sha256-5TbeJShwVic/AVf8hOwnlY9mpImpLdZg9AjEWKPIR+Y=";
   };
 
   nativeBuildInputs = [
@@ -108,7 +108,7 @@ stdenv.mkDerivation rec {
     cp -r opt/pcpanel $out/opt/pcpanel
 
     # Icon for the desktop entry.
-    cp $out/opt/pcpanel/lib/PCPanel.png $out/share/pixmaps/pcpanel.png
+    # cp $out/opt/pcpanel/lib/PCPanel.png $out/share/pixmaps/pcpanel.png
 
     # udev rules based on linux.md, extended for NixOS: the app's HID layer
     # (hid4java) uses the libusb backend, which opens the raw USB node under
@@ -193,7 +193,7 @@ stdenv.mkDerivation rec {
     #     * libusb/udev: natives that hid4java extracts to /tmp
     #     * libx11/libxtst/libxkbcommon: natives that jnativehook extracts to /tmp
     # - the app expects its data dir (~/.pcpanel) to exist on first run
-    makeWrapper $out/opt/pcpanel/bin/PCPanel $out/bin/pcpanel \
+    makeWrapper $out/opt/pcpanel/PCPanel $out/bin/pcpanel \
       --prefix PATH : $out/libexec/pcpanel:${lib.makeBinPath [ pulseaudio ]} \
       --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ gtk3 libGL libusb1 udev libx11 libxtst libxkbcommon ]} \
       --run 'mkdir -p "''${PCPANEL_ROOT:-$HOME/.pcpanel}"'

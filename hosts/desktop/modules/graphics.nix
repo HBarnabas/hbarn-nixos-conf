@@ -6,6 +6,7 @@
     extraPackages = [
       pkgs.mesa
     ];
+    enable32Bit = true;
   };
 
   services.xserver = {

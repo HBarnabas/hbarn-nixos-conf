@@ -6,9 +6,6 @@
   # enable dconf
   programs.dconf.enable = true;
 
-  # add user to libvirtd group
-  users.users.hbarn.extraGroups = [ "libvirtd" ];
-
   # install packages
   environment.systemPackages = with pkgs; [
     virt-manager

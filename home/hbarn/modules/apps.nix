@@ -21,8 +21,6 @@
 		slurp
     # stress
     tmux
-    # unrar
-    # unzip
     vim
     wget
     wl-clipboard
@@ -31,9 +29,14 @@
     yazi
     rpi-imager
     unzip
+    unrar
     icloudpd
     sops
     age
+    # pcsx2
+    # nrg2iso
+    # ppsspp-sdl-wayland
+    rpcs3
 
 		# media
 		gimp3
@@ -83,6 +86,8 @@
     kustomize
     kubernetes-helm
     postman
+    chatgpt-cli
+    whatsapp-electron
 
     #gaming
     # deluge
@@ -108,7 +113,7 @@
     # browser
     stable.microsoft-edge
     vivaldi
-    google-chrome
+    # google-chrome
     # Pin Microsoft Edge stable to a known-good upstream .deb (the newer stable URLs were returning 404).
     # (pkgs.microsoft-edge.overrideAttrs (old: rec {
     #   version = "144.0.3719.115";
