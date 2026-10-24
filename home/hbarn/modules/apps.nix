@@ -63,7 +63,7 @@
     tflint
     terraform-docs
     vendir
-    # vscode
+    vscode
     zed-editor-fhs
     # (zed-editor-fhs.overrideAttrs (old: {
     #   doCheck = false;
