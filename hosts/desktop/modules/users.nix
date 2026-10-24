@@ -5,6 +5,12 @@
   # Group that owns the nix config checkout (/srv/nix-conf).
   users.groups.nixadmins = { };
 
+  # System-wide git trust for the checkout; ~/.config/git is read-only (home-manager).
+  programs.git = {
+    enable = true;
+    config.safe.directory = [ "/srv/nix-conf" ];
+  };
+
   users.users.hbarn = {
     isNormalUser = true;
     description = "barnabas hegedus";
