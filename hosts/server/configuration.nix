@@ -8,6 +8,7 @@ in
     ./hardware-configuration.nix
     ../desktop/modules/enable-flake.nix
     ./modules/boot.nix
+    ./modules/system-pkgs.nix
   ];
 
   assertions = [
