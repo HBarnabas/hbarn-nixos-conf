@@ -56,6 +56,13 @@ stdenv.mkDerivation rec {
     copyDesktopItems
   ];
 
+  dontPatchELF = true;
+  dontAutoPatchelf = true;
+
+  postFixup = ''
+    autoPatchelf "$out/opt/pcpanel/"*.so "$out/opt/pcpanel/kdotool"
+  '';
+
   buildInputs = [
     alsa-lib
     atk
@@ -193,7 +200,8 @@ stdenv.mkDerivation rec {
     #     * libusb/udev: natives that hid4java extracts to /tmp
     #     * libx11/libxtst/libxkbcommon: natives that jnativehook extracts to /tmp
     # - the app expects its data dir (~/.pcpanel) to exist on first run
-    makeWrapper $out/opt/pcpanel/PCPanel $out/bin/pcpanel \
+    makeWrapper ${stdenv.cc.bintools.dynamicLinker} $out/bin/pcpanel \
+      --add-flags "--library-path $out/opt/pcpanel:${lib.makeLibraryPath buildInputs} $out/opt/pcpanel/PCPanel" \
       --prefix PATH : $out/libexec/pcpanel:${lib.makeBinPath [ pulseaudio ]} \
       --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ gtk3 libGL libusb1 udev libx11 libxtst libxkbcommon ]} \
       --run 'mkdir -p "''${PCPANEL_ROOT:-$HOME/.pcpanel}"'
