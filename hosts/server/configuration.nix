@@ -49,7 +49,10 @@ in
   services.k3s = {
     enable = true;
     role = "server";
-    extraFlags = [ "--kubelet-arg=fail-swap-on=false" ];
+    extraFlags = [
+      "--kubelet-arg=fail-swap-on=false"
+      "--write-kubeconfig-mode"
+    ];
   };
 
   system.stateVersion = "26.05";
