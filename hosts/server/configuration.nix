@@ -51,7 +51,6 @@ in
     role = "server";
     extraFlags = [
       "--kubelet-arg=fail-swap-on=false"
-      "--write-kubeconfig-mode"
     ];
   };
 
