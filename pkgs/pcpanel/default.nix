@@ -42,11 +42,11 @@
 
 stdenv.mkDerivation rec {
   pname = "pcpanel";
-  version = "2.1.0";
+  version = "2.5.0";
 
   src = fetchurl {
     url = "https://github.com/nvdweem/PCPanel/releases/download/v${version}/pcpanel_${version}_amd64.deb";
-    hash = "sha256-5TbeJShwVic/AVf8hOwnlY9mpImpLdZg9AjEWKPIR+Y=";
+    hash = "sha256-8jWzoY6bzZAfZ4NcGKUr3L8S5Oxq3vlWe1jBdVQvjyw=";
   };
 
   nativeBuildInputs = [
@@ -133,11 +133,12 @@ stdenv.mkDerivation rec {
     EOF
 
     # xdotool shim that makes the "focus volume" feature work on sway/swayfx
-    # (native Wayland). PCPanel 1.7.1 (LinuxProcessHelper) determines the
-    # focused application with exactly two calls:
+    # (native Wayland). Older PCPanel versions determine the focused app with:
     #   xdotool getactivewindow          -> window id (one line)
     #   xdotool getwindowpid <windowid>  -> pid (one line)
-    # and then resolves the pid to a process name via `ps -o comm=`. The real
+    # Newer versions chain getwindowpid/getwindowclassname/getwindowname in one
+    # call and expect PID, class and title on separate lines, without the ID.
+    # PCPanel resolves the pid to a process name via `ps -o comm=`. The real
     # xdotool only sees XWayland windows, so we answer those two subcommands
     # from the sway IPC tree instead and delegate everything else (and non-sway
     # sessions) to the real xdotool.
@@ -145,6 +146,19 @@ stdenv.mkDerivation rec {
     cat > $out/libexec/pcpanel/xdotool <<'EOF'
     #!${stdenv.shell}
     if [ -n "$SWAYSOCK" ] && command -v swaymsg >/dev/null 2>&1; then
+      case "$*" in
+        "getactivewindow getwindowpid getwindowclassname getwindowname"|"getactivewindow getwindowpid getwindowname")
+          swaymsg -t get_tree | ${jq}/bin/jq -er --arg query "$*" '
+            first(.. | objects | select(.focused? == true and .pid? != null))
+            | select(. != null)
+            | .pid,
+              (if ($query | contains("getwindowclassname")) then
+                (.app_id // .window_properties.class // "")
+              else empty end),
+              (.name // "")'
+          exit $?
+          ;;
+      esac
       case "$1" in
         getactivewindow)
           id=$(swaymsg -t get_tree | ${jq}/bin/jq -r 'first(.. | objects | select(.focused? == true) | .id) // empty')
