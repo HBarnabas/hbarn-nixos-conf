@@ -21,6 +21,9 @@ in
   networking.hostName = "server";
   networking.useDHCP = true;
   networking.firewall.enable = true;
+  networking.firewall.allowedTCPPorts = [
+     6443
+  ];
 
   zramSwap = {
     enable = true;
@@ -50,6 +53,7 @@ in
     enable = true;
     role = "server";
     extraFlags = [
+      "--write-kubeconfig-group"
       "--kubelet-arg=fail-swap-on=false"
     ];
   };
