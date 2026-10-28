@@ -7,6 +7,7 @@ in
   imports = [
     ./hardware-configuration.nix
     ../desktop/modules/enable-flake.nix
+    ./modules/boot.nix
   ];
 
   assertions = [
