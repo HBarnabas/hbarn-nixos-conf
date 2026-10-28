@@ -53,7 +53,7 @@ in
     enable = true;
     role = "server";
     extraFlags = [
-      "--write-kubeconfig-group"
+      "--write-kubeconfig-mode"
       "--kubelet-arg=fail-swap-on=false"
     ];
   };
