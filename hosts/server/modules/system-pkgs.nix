@@ -6,5 +6,6 @@
     vim
     htop
     btop
+    fluxcd
   ];
 }
