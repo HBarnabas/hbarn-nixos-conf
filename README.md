@@ -47,3 +47,19 @@ k3s runs with its default single-node datastore. Use `sudo k3s kubectl get nodes
 to check it and `/etc/rancher/k3s/k3s.yaml` for the root-readable admin kubeconfig.
 Only SSH is opened in the firewall; remote Kubernetes API access, workloads,
 and additional cluster nodes need deliberate firewall configuration later.
+
+#### Memory And Swap
+
+The server uses 25% zram at priority 100, with no disk-backed swap configured.
+This provides compressed swap for host services and occasional system updates
+without reserving disk space for a swapfile.
+
+k3s permits host swap through `fail-swap-on=false`, while retaining Kubernetes'
+default `NoSwap` policy for pods. Host services can use zram, but pods cannot.
+The kubelet flag is needed even with only zram enabled. Zram is emergency
+headroom, not additional schedulable RAM. Set realistic pod memory requests and
+limits in the Flux manifests; pods can still be OOM-killed at their memory
+limits or evicted under node memory pressure.
+
+After deploying, check `swapon --show`, `free -h`, and
+`sudo k3s kubectl describe node` to verify swap and node memory health.

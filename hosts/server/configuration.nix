@@ -20,6 +20,12 @@ in
   networking.useDHCP = true;
   networking.firewall.enable = true;
 
+  zramSwap = {
+    enable = true;
+    memoryPercent = 25;
+    priority = 100;
+  };
+
   users.users.hbarn = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
@@ -41,6 +47,7 @@ in
   services.k3s = {
     enable = true;
     role = "server";
+    extraFlags = [ "--kubelet-arg=fail-swap-on=false" ];
   };
 
   system.stateVersion = "26.05";
