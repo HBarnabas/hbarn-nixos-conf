@@ -7,5 +7,6 @@
     htop
     btop
     fluxcd
+    kubectl
   ];
 }
