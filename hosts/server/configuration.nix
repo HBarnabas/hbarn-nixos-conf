@@ -9,6 +9,7 @@ in
     ../desktop/modules/enable-flake.nix
     ./modules/boot.nix
     ./modules/system-pkgs.nix
+    ./modules/drives.nix
   ];
 
   assertions = [
