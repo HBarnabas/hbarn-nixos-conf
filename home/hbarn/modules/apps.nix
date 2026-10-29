@@ -33,6 +33,7 @@
     icloudpd
     sops
     age
+    rsync
     # pcsx2
     # nrg2iso
     # ppsspp-sdl-wayland
