@@ -10,6 +10,7 @@ in
     ./modules/boot.nix
     ./modules/system-pkgs.nix
     ./modules/drives.nix
+    ./modules/network.nix
   ];
 
   assertions = [
@@ -17,13 +18,6 @@ in
       assertion = sshPublicKey != "";
       message = "Set sshPublicKey in hosts/server/configuration.nix before deploying the server.";
     }
-  ];
-
-  networking.hostName = "server";
-  networking.useDHCP = true;
-  networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [
-     6443
   ];
 
   zramSwap = {
@@ -39,16 +33,6 @@ in
   };
 
   security.sudo.wheelNeedsPassword = false;
-
-  services.openssh = {
-    enable = true;
-    openFirewall = true;
-    settings = {
-      PermitRootLogin = "no";
-      PasswordAuthentication = false;
-      KbdInteractiveAuthentication = false;
-    };
-  };
 
   services.k3s = {
     enable = true;
