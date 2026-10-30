@@ -12,7 +12,10 @@
   boot.kernel.sysctl = {
     "net.ipv4.ip_forward" = 1;
   };
-  services.tailscale.useRoutingFeatures = "server";
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "server";
+  };
   services.openssh = {
     enable = true;
     openFirewall = true;
