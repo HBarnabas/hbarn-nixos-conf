@@ -26,5 +26,7 @@
     ./modules/virt-secret-fix.nix
   ];
 
+  nixpkgs.config.problems.handlers."gtk+".broken = "warn";
+
   system.stateVersion = "24.05"; # Did you read the comment?
 }

@@ -4,7 +4,7 @@
   fileSystems."/home/hbarn/mnt/ssd-sam-sata" = {
     device = "/dev/disk/by-uuid/f776225b-184a-435c-af7e-b989204f1e9c";
     fsType = "ext4";
-    options = [ "rw" "users" ];
+    options = [ "rw" "users" "exec" ];
   };
   # HDD physically removed from the machine — keep the definition for later
   # re-installation, but don't try to mount it at boot.
@@ -32,7 +32,7 @@
   fileSystems."/home/hbarn/mnt/ssd-sam-m2" = {
     device = "/dev/disk/by-uuid/e520eea0-f6fc-49e8-a5b5-fe1ba39de675";
     fsType = "ext4";
-    options = [ "rw" "users" ];
+    options = [ "rw" "users" "exec" ];
   };
   systemd.tmpfiles.rules = [
     "d /home/hbarn/mnt/ssd-sam-sata 0755 hbarn users -"
