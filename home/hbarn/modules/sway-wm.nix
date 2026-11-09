@@ -1,9 +1,38 @@
 { pkgs, ... }:
 
+let
+  # json-c 0.19 leaks nested objects in release builds. Limit the backport to
+  # SwayFX so other packages can continue using the binary cache.
+  swayPackage =
+    if pkgs.json_c.version == "0.19" then
+      let
+        jsonCFix = pkgs.fetchurl {
+          url = "https://github.com/json-c/json-c/commit/f291fa81c6f21d925ea771a8cca597f5886309cc.patch";
+          hash = "sha256-QoNmM/zn+kdVrnJF+zArwEDYJL5fnOqo7UUQzk+i5Gs=";
+        };
+        jsonCFixed = pkgs.json_c.overrideAttrs (old: {
+          postPatch = (old.postPatch or "") + ''
+            if grep -Fq 'assert(_json_object_put_maybe_free(jso, 1) == 0);' json_object.c; then
+              patch -p1 < ${jsonCFix}
+            elif ! grep -Fq 'rc = _json_object_put_maybe_free(jso, 1);' json_object.c; then
+              echo "json-c 0.19 memory leak fix could not be verified" >&2
+              exit 1
+            fi
+          '';
+        });
+      in
+      pkgs.swayfx.override {
+        swayfx-unwrapped = pkgs.swayfx-unwrapped.override {
+          json_c = jsonCFixed;
+        };
+      }
+    else
+      pkgs.swayfx;
+in
 {
   wayland.windowManager.sway = {
     enable = true;
-    package = pkgs.swayfx;
+    package = swayPackage;
 
     checkConfig = false;
 
