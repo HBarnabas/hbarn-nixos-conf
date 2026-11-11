@@ -25,7 +25,7 @@
     settings = {
       global = {
         "logging" = "systemd";
-        "log level" = "5";
+        "log level" = "1";
         "interfaces" = "lo enp6s0";
         "bind interfaces only" = "yes";
         "smb ports" = 445;
@@ -40,7 +40,6 @@
         "read only" = "no";
         "guest ok" = "yes";
         "guest only" = "yes";
-        "force user" = "smbguest";
       };
     };
   };

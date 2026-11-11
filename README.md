@@ -78,11 +78,11 @@ Verify with `sudo ss -lntp 'sport = :445'`: the server's `192.168.0.x:445`
 address must appear. On macOS, use Finder's **Go > Connect to Server**, enter
 `smb://<server-lan-ip>/hdd`, and choose **Guest** when prompted.
 
-Samba currently logs to the system journal with temporary diagnostic detail
-for troubleshooting guest writes. After reproducing a failed write, inspect
-`sudo journalctl -u samba-smbd --since '2 minutes ago' --no-pager`.
-Once resolved, set `services.samba.settings.global."log level"` back to `"1"`
-in `hosts/server/modules/network.nix` and rebuild.
+Guest-only connections use the global `smbguest` guest account without a
+`force user` override. That override replaces Samba's Guest SID with a Unix
+user SID, which can fail its ACL checks even when filesystem ownership matches.
+Samba logs to the system journal at normal verbosity. For connection or access
+errors, inspect `sudo journalctl -u samba-smbd --since '2 minutes ago' --no-pager`.
 
 #### Memory And Swap
 
