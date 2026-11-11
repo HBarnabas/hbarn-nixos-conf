@@ -71,6 +71,13 @@ already be accessible to that account if they are to be read or modified.
 Check the mount and service with `findmnt /mnt/hdd-smb` and
 `systemctl status samba-smbd`.
 
+DHCP waits for an IPv4 address before marking the network online, so Samba
+does not start with only IPv6 listeners. After rebuilding, run
+`sudo systemctl restart samba-smbd` to bind the current LAN address.
+Verify with `sudo ss -lntp 'sport = :445'`: the server's `192.168.0.x:445`
+address must appear. On macOS, use Finder's **Go > Connect to Server**, enter
+`smb://<server-lan-ip>/hdd`, and choose **Guest** when prompted.
+
 #### Memory And Swap
 
 The server uses 25% zram at priority 100, with no disk-backed swap configured.

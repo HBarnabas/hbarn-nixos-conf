@@ -3,6 +3,8 @@
 {
   networking.hostName = "server";
   networking.useDHCP = true;
+  # Samba binds specific addresses at startup; IPv6 alone is not LAN readiness.
+  networking.dhcpcd.wait = "ipv4";
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [
      6443
