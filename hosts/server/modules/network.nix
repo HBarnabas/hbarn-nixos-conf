@@ -24,6 +24,8 @@
     winbindd.enable = false;
     settings = {
       global = {
+        "logging" = "systemd";
+        "log level" = "3 auth:5 vfs:5 acls:5 smb2:5";
         "interfaces" = "lo enp6s0";
         "bind interfaces only" = "yes";
         "smb ports" = 445;
