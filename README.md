@@ -45,8 +45,31 @@ private key accordingly. Root SSH and password-based SSH logins are disabled.
 
 k3s runs with its default single-node datastore. Use `sudo k3s kubectl get nodes`
 to check it and `/etc/rancher/k3s/k3s.yaml` for the root-readable admin kubeconfig.
-Only SSH is opened in the firewall; remote Kubernetes API access, workloads,
-and additional cluster nodes need deliberate firewall configuration later.
+The firewall also permits the configured Kubernetes and workload ports; review
+`hosts/server/modules/network.nix` before exposing the server to other networks.
+
+#### Samba Storage
+
+The ext4 filesystem with UUID `1a97377c-cad8-4ab8-808f-d5b044993866`
+is mounted at `/mnt/hdd-smb` and shared as `hdd`. Confirm the UUID with
+`lsblk -f` on the server before deploying; this configuration does not format
+the disk. The server can boot without the disk, but Samba will not start until
+the filesystem is mounted. Once the disk is available, start it with
+`sudo systemctl start samba-smbd`.
+
+The share allows unauthenticated read/write access from `192.168.0.0/24` on
+`enp6s0`, using TCP port 445. Anyone on that network can modify or delete its
+contents; this is not suitable for untrusted networks. It is not exposed on
+Tailscale. Connect directly to `smb://<server-lan-ip>/hdd` (Windows:
+`\\<server-lan-ip>\hdd`); network discovery is not configured. Some clients
+disable insecure guest access by default and require an explicit client-side
+setting to connect.
+
+At service startup the disk root is owned by the dedicated `smbguest` account
+and set to mode 0755. Existing files are not changed recursively and must
+already be accessible to that account if they are to be read or modified.
+Check the mount and service with `findmnt /mnt/hdd-smb` and
+`systemctl status samba-smbd`.
 
 #### Memory And Swap
 

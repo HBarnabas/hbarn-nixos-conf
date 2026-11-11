@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 
 {
   networking.hostName = "server";
@@ -10,6 +10,43 @@
      443
   ];
   networking.firewall.allowedUDPPorts = [ 3478 ];
+
+  networking.firewall.extraCommands = ''
+    iptables -A nixos-fw -i enp6s0 -s 192.168.0.0/24 -p tcp --dport 445 -j nixos-fw-accept
+  '';
+
+  services.samba = {
+    enable = true;
+    openFirewall = false;
+    nmbd.enable = false;
+    winbindd.enable = false;
+    settings = {
+      global = {
+        "interfaces" = "lo enp6s0";
+        "bind interfaces only" = "yes";
+        "smb ports" = 445;
+        "hosts allow" = "127.0.0.1 192.168.0.0/24";
+        "hosts deny" = "0.0.0.0/0 ::/0";
+        "map to guest" = "Bad User";
+        "guest account" = "smbguest";
+      };
+      hdd = {
+        path = "/mnt/hdd-smb";
+        browseable = "yes";
+        "read only" = "no";
+        "guest ok" = "yes";
+        "guest only" = "yes";
+        "force user" = "smbguest";
+      };
+    };
+  };
+
+  systemd.services.samba-smbd = {
+    requires = [ "samba-share-setup.service" ];
+    after = [ "samba-share-setup.service" ];
+    bindsTo = [ "mnt-hdd\\x2dsmb.mount" ];
+    unitConfig.RequiresMountsFor = lib.mkForce "/var/lib/samba /mnt/hdd-smb";
+  };
 
   boot.kernel.sysctl = {
     "net.ipv4.ip_forward" = 1;
